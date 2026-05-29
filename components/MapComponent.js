@@ -15,7 +15,8 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
   // Inicializar mapa (una sola vez)
   useEffect(() => {
     if (mapRef.current && !mapInstanceRef.current) {
-      import('leaflet').then((L) => {
+      import('leaflet').then(async (L) => {
+        await import('leaflet-rotate');
         delete L.Icon.Default.prototype._getIconUrl;
         L.Icon.Default.mergeOptions({
           iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -31,6 +32,13 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
         const map = L.map(mapRef.current, {
           zoomControl: false,
           attributionControl: false,
+          rotate: true,
+          touchRotate: true,
+          rotateControl: {
+            closeOnZeroBearing: false,
+            position: 'topright'
+          },
+          bearing: 0,
         }).setView([-34.5020, -58.7090], 13);
 
         // Tile layer claro: CartoDB Positron — alta legibilidad a plena luz solar
