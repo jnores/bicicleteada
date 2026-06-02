@@ -88,3 +88,8 @@ Variables de entorno necesarias en Vercel (Settings > Environment Variables):
 - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
 - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 - NEXT_PUBLIC_FIREBASE_APP_ID
+
+
+## Paginas Utiles
+
+https://www.latlong.net/convert-address-to-lat-long.html
