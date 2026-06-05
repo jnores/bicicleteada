@@ -309,7 +309,8 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
 
       // Actualizar / crear
       Object.entries(participants).forEach(([id, participant], index) => {
-        const color = PARTICIPANT_COLORS[index % PARTICIPANT_COLORS.length];
+        const circuit = circuits ? circuits.find(c => String(c.id) === String(participant.circuitId)) : null;
+        const color = circuit ? circuit.color : PARTICIPANT_COLORS[index % PARTICIPANT_COLORS.length];
         const initials = (participant.name || id).substring(0, 2).toUpperCase();
         const now = Date.now();
         const isStale = participant.timestamp && (now - participant.timestamp) > 15000;
