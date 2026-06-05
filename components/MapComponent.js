@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { PARTICIPANT_COLORS, START_POINT } from '@/lib/circuits';
+import { PARTICIPANT_COLORS, START_POINT, INSTITUCIONES } from '@/lib/circuits';
 
 export default function MapComponent({ circuits, participants, activeCircuitFilter }) {
   const mapRef = useRef(null);
@@ -10,6 +10,7 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
   const checkpointMarkersRef = useRef({});  // { circuitId: [markers] }
   const participantMarkersRef = useRef({});
   const startMarkerRef = useRef(null);
+  const institucionesMarkersRef = useRef([]);
   const [mapReady, setMapReady] = useState(false);
 
   // Inicializar mapa (una sola vez)
@@ -64,9 +65,9 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
         routeLayersRef.current = {};
-        checkpointMarkersRef.current = {};
         participantMarkersRef.current = {};
         startMarkerRef.current = null;
+        institucionesMarkersRef.current = [];
       }
     };
   }, []);
@@ -82,8 +83,10 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
       Object.values(routeLayersRef.current).forEach(layers => layers.forEach(l => l.remove()));
       Object.values(checkpointMarkersRef.current).forEach(markers => markers.forEach(m => m.remove()));
       if (startMarkerRef.current) startMarkerRef.current.remove();
+      institucionesMarkersRef.current.forEach(m => m.remove());
       routeLayersRef.current = {};
       checkpointMarkersRef.current = {};
+      institucionesMarkersRef.current = [];
 
       circuits.forEach((circuit) => {
         const markers = [];
@@ -177,6 +180,91 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
       startMarkerRef.current = L.marker(START_POINT, { icon: startIcon, zIndexOffset: 1000 })
         .addTo(map)
         .bindPopup(`<b>🏁 El Campito</b><br>Baroni 891, Los Polvorines<br><small>Inicio y llegada de todos los circuitos</small>`);
+
+      // Función para agrupar y renderizar instituciones
+      const renderInstitutions = () => {
+        // Limpiar marcadores existentes
+        institucionesMarkersRef.current.forEach(m => m.remove());
+        institucionesMarkersRef.current = [];
+
+        if (!INSTITUCIONES || INSTITUCIONES.length === 0) return;
+
+        const groupedInstitutions = [];
+        const overlapThreshold = 24; // Píxeles de distancia para considerar que se superponen
+
+        INSTITUCIONES.forEach(inst => {
+          if (!inst.coords || inst.coords.length !== 2) return;
+          const latlng = L.latLng(inst.coords);
+          const pixelPos = map.latLngToLayerPoint(latlng);
+
+          // Buscar un grupo cercano
+          let foundGroup = null;
+          for (const group of groupedInstitutions) {
+            const groupLatLng = L.latLng(group.coords);
+            const physicalDistance = map.distance(latlng, groupLatLng);
+            
+            const groupPixelPos = map.latLngToLayerPoint(groupLatLng);
+            const pixelDistance = pixelPos.distanceTo(groupPixelPos);
+
+            // Agrupar si están a <= 20 metros físicos O si se superponen visualmente
+            if (physicalDistance <= 20 || pixelDistance <= overlapThreshold) {
+              foundGroup = group;
+              break;
+            }
+          }
+
+          if (foundGroup) {
+            foundGroup.items.push(inst);
+          } else {
+            groupedInstitutions.push({
+              coords: inst.coords, 
+              color: inst.color,   
+              items: [inst]
+            });
+          }
+        });
+
+        groupedInstitutions.forEach(group => {
+          const isGroup = group.items.length > 1;
+          const marker = L.circleMarker(group.coords, {
+            radius: isGroup ? 12 : 9, // Un poco más grande si agrupa varias
+            fillColor: group.color || '#62af44',
+            color: '#ffffff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9,
+            zIndexOffset: 800
+          }).addTo(map);
+
+          let popupHtml = '<div style="font-family: Inter, sans-serif; font-size: 13px; color: #111; max-height: 250px; overflow-y: auto;">';
+          if (isGroup) {
+            popupHtml += `<div style="font-weight: 800; margin-bottom: 6px; border-bottom: 1px solid #eee; padding-bottom: 4px;">${group.items.length} Instituciones agrupadas:</div>`;
+            popupHtml += '<ul style="margin: 0; padding-left: 18px;">';
+            group.items.forEach(item => {
+              popupHtml += `<li style="margin-bottom: 4px; font-weight: 600;">${item.name}</li>`;
+            });
+            popupHtml += '</ul>';
+          } else {
+            popupHtml += `<div style="font-weight: 700;">${group.items[0].name}</div>`;
+          }
+          popupHtml += '</div>';
+
+          marker.bindPopup(popupHtml);
+          institucionesMarkersRef.current.push(marker);
+        });
+      };
+
+      // Remover el listener anterior si existía para evitar duplicados
+      if (map._institutionsZoomListener) {
+        map.off('zoomend', map._institutionsZoomListener);
+      }
+      
+      // Guardar referencia al listener actual
+      map._institutionsZoomListener = renderInstitutions;
+      
+      // Renderizar inicialmente y volver a renderizar cuando cambia el zoom
+      renderInstitutions();
+      map.on('zoomend', renderInstitutions);
 
       // Fit a todos los circuitos
       const allCoords = circuits.flatMap(c => c.route);
