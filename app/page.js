@@ -229,6 +229,7 @@ export default function HomePage() {
   const [showConfig, setShowConfig] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'circuito_1' | etc
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
   const [now, setNow] = useState(Date.now());
 
@@ -281,8 +282,8 @@ export default function HomePage() {
   const displayParticipants = activeFilter === 'all'
     ? allParticipants
     : Object.fromEntries(
-        Object.entries(allParticipants).filter(([, p]) => p.circuitId === activeFilter)
-      );
+      Object.entries(allParticipants).filter(([, p]) => p.circuitId === activeFilter)
+    );
 
   const totalCount = Object.keys(allParticipants).length;
   const filteredCount = Object.keys(displayParticipants).length;
@@ -292,25 +293,37 @@ export default function HomePage() {
       {showConfig && <FirebaseConfigModal onSave={applyFirebaseConfig} onDemo={handleDemoMode} />}
 
       <div className="app-container">
-        {/* Mobile toggle */}
+        {/* Toggle flotante */}
         <button
-          className="mobile-toggle"
-          onClick={() => setSidebarOpen(v => !v)}
+          className={`floating-toggle ${sidebarCollapsed ? 'show-on-desktop' : ''}`}
+          onClick={() => {
+            setSidebarOpen(v => !v);
+            setSidebarCollapsed(false);
+          }}
           aria-label="Menú"
         >
           {sidebarOpen ? '✕' : '☰'}
         </button>
 
         {/* ============ SIDEBAR ============ */}
-        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
           {/* Header */}
           <div className="sidebar-header">
             <div className="logo-area">
-              <div className="logo-icon">🚴</div>
-              <div className="logo-text">
-                <h1>Bicicleteada</h1>
-                <p>Los Polvorines · Seguimiento GPS</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="logo-icon">🚴</div>
+                <div className="logo-text">
+                  <h1>Bicicleteada</h1>
+                  <p>Los Polvorines · Seguimiento GPS</p>
+                </div>
               </div>
+              <button
+                className="collapse-btn hide-on-mobile"
+                onClick={() => setSidebarCollapsed(true)}
+                title="Ocultar panel"
+              >
+                ◀
+              </button>
             </div>
             <div className="status-pill">
               <div className={`status-dot ${isDemo ? 'demo' : firebaseReady ? '' : 'offline'}`} />
@@ -323,8 +336,8 @@ export default function HomePage() {
 
             {/* Leyenda de circuitos */}
             {/* Leyenda de circuitos */}
-            <div 
-              className="section-label" 
+            <div
+              className="section-label"
               style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}
               onClick={() => setLegendOpen(!legendOpen)}
             >
@@ -466,7 +479,7 @@ export default function HomePage() {
                 <div className="map-stat-label">En ruta</div>
               </div>
               <div className="map-stat-card">
-                <div className="map-stat-value">3</div>
+                <div className="map-stat-value">{CIRCUIT_LIST.filter(c => !c.hidden).length}</div>
                 <div className="map-stat-label">Circuitos</div>
               </div>
               {isDemo && (
