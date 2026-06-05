@@ -302,7 +302,7 @@ export default function HomePage() {
           }}
           aria-label="Menú"
         >
-          {sidebarOpen ? '✕' : '☰'}
+          ☰
         </button>
 
         {/* ============ SIDEBAR ============ */}
