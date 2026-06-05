@@ -292,7 +292,7 @@ export default function HomePage() {
     <>
       {showConfig && <FirebaseConfigModal onSave={applyFirebaseConfig} onDemo={handleDemoMode} />}
 
-      <div className="app-container">
+      <div className={`app-container ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {/* Toggle flotante */}
         <button
           className={`floating-toggle ${sidebarCollapsed ? 'show-on-desktop' : ''}`}

@@ -48,21 +48,25 @@ html, body {
 
 /* === SIDEBAR === */
 .sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
   width: var(--sidebar-width);
   height: 100%;
   background: var(--bg-primary);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  z-index: 100;
+  z-index: 1000;
   flex-shrink: 0;
   overflow: hidden;
-  box-shadow: 2px 0 12px rgba(0,0,0,0.06);
-  transition: transform 0.3s ease, margin-left 0.3s ease;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease;
 }
 
 .sidebar.collapsed {
-  margin-left: calc(-1 * var(--sidebar-width));
+  transform: translateX(-100%);
 }
 
 .sidebar-header {
@@ -397,7 +401,7 @@ html, body {
 .map-header {
   position: absolute;
   top: 14px;
-  left: 14px;
+  left: calc(var(--sidebar-width) + 14px);
   right: 14px;
   z-index: 500;
   display: flex;
@@ -405,6 +409,11 @@ html, body {
   justify-content: space-between;
   pointer-events: none;
   gap: 10px;
+  transition: left 0.3s ease;
+}
+
+.app-container.sidebar-collapsed .map-header {
+  left: 64px;
 }
 
 /* Start point badge */
@@ -707,13 +716,8 @@ html, body {
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   .sidebar {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 1000;
     box-shadow: none;
-    margin-left: 0 !important;
   }
 
   .sidebar.open {
@@ -729,5 +733,8 @@ html, body {
     display: none;
   }
 
-  .map-header { top: 62px; }
+  .map-header {
+    top: 62px;
+    left: 14px !important;
+  }
 }
