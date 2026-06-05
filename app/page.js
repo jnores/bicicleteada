@@ -229,6 +229,7 @@ export default function HomePage() {
   const [showConfig, setShowConfig] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'circuito_1' | etc
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [legendOpen, setLegendOpen] = useState(false);
   const [now, setNow] = useState(Date.now());
 
   // Tick para timestamps
@@ -321,36 +322,46 @@ export default function HomePage() {
           <div className="sidebar-content">
 
             {/* Leyenda de circuitos */}
-            <div className="section-label">Circuitos (todos en el mapa)</div>
-            <div className="circuit-legend">
-              {CIRCUIT_LIST.map(circuit => {
-                const count = Object.values(allParticipants).filter(p => p.circuitId === circuit.id).length;
-                return (
-                  <div key={circuit.id} className="circuit-legend-item">
-                    <div
-                      className="circuit-color-swatch"
-                      style={{ background: circuit.color }}
-                    />
-                    <div className="circuit-legend-info">
-                      <div className="circuit-legend-name">{circuit.name}</div>
-                      <div className="circuit-legend-desc">{circuit.description}</div>
-                    </div>
-                    <div className="circuit-legend-badges">
-                      <span className="badge">{circuit.distance}</span>
-                      {count > 0 && (
-                        <span className="badge" style={{
-                          background: `${circuit.color}18`,
-                          color: circuit.color,
-                          fontWeight: 800,
-                        }}>
-                          {count}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Leyenda de circuitos */}
+            <div 
+              className="section-label" 
+              style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}
+              onClick={() => setLegendOpen(!legendOpen)}
+            >
+              <span>Circuitos (todos en el mapa)</span>
+              <span>{legendOpen ? '▲' : '▼'}</span>
             </div>
+            {legendOpen && (
+              <div className="circuit-legend">
+                {CIRCUIT_LIST.map(circuit => {
+                  const count = Object.values(allParticipants).filter(p => p.circuitId === circuit.id).length;
+                  return (
+                    <div key={circuit.id} className="circuit-legend-item">
+                      <div
+                        className="circuit-color-swatch"
+                        style={{ background: circuit.color }}
+                      />
+                      <div className="circuit-legend-info">
+                        <div className="circuit-legend-name">{circuit.name}</div>
+                        {/* <div className="circuit-legend-desc">{circuit.description}</div> */}
+                      </div>
+                      <div className="circuit-legend-badges">
+                        {/* <span className="badge">{circuit.distance}</span> */}
+                        {count > 0 && (
+                          <span className="badge" style={{
+                            background: `${circuit.color}18`,
+                            color: circuit.color,
+                            fontWeight: 800,
+                          }}>
+                            {count}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Filtro de participantes */}
             <div className="section-label">Ver participantes de</div>
@@ -417,7 +428,7 @@ export default function HomePage() {
             )}
 
             {/* API info */}
-            <div className="section-label" style={{ marginTop: '18px' }}>API Mobile (POST)</div>
+            {/* <div className="section-label" style={{ marginTop: '18px' }}>API Mobile (POST)</div>
             <div className="api-info">
               POST /api/position<br />
               {'{'}<br />
@@ -434,7 +445,7 @@ export default function HomePage() {
               <button className="secondary-btn" onClick={() => setShowConfig(true)}>
                 ⚙️ Reconfigurar Firebase
               </button>
-            )}
+            )} */}
           </div>
         </aside>
 

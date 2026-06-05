@@ -230,6 +230,7 @@ html, body {
 /* === CIRCUIT FILTER TABS === */
 .circuit-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   background: rgba(0,0,0,0.05);
   border-radius: var(--radius-md);

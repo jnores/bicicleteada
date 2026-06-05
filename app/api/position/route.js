@@ -29,7 +29,7 @@ export async function POST(request) {
       );
     }
 
-    const validCircuits = ['Mini', 'Bicicleteada', 'Caminata', 'Maraton', 'Caravana'];
+    const validCircuits = ['Mini', 'Bicicleteada', 'Caminata', 'Maraton', 'Caravana', 'Otros'];
     if (!validCircuits.includes(circuitId)) {
       return Response.json(
         { error: `circuitId inválido. Válidos: ${validCircuits.join(', ')}` },
