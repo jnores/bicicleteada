@@ -29,7 +29,7 @@ export async function POST(request) {
       );
     }
 
-    const validCircuits = ['circuito_1', 'circuito_2', 'circuito_3'];
+    const validCircuits = ['Mini', 'Bicicleteada', 'Caminata', 'Maraton', 'Caravana'];
     if (!validCircuits.includes(circuitId)) {
       return Response.json(
         { error: `circuitId inválido. Válidos: ${validCircuits.join(', ')}` },
@@ -77,7 +77,7 @@ export async function GET() {
       method: 'POST',
       endpoint: '/api/position',
       body: {
-        circuitId: 'circuito_1 | circuito_2 | circuito_3',
+        circuitId: 'circuito_1 | circuito_2 | circuito_3 | circuito_otros',
         participantId: 'string único (ej: "p1", "uuid")',
         name: 'string (opcional)',
         lat: 'number (latitud)',
