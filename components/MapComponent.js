@@ -164,7 +164,7 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
               offset: [0, -26],
               className: 'checkpoint-tooltip-container'
             });
-            
+
           if (showCheckpointsRef.current) {
             m.addTo(map);
           }
@@ -260,8 +260,8 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
             foundGroup.items.push(inst);
           } else {
             groupedInstitutions.push({
-              coords: inst.coords, 
-              color: inst.color,   
+              coords: inst.coords,
+              color: inst.color,
               items: [inst]
             });
           }
@@ -300,7 +300,7 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
       if (map._institutionsZoomListener) {
         map.off('zoomend', map._institutionsZoomListener);
       }
-      
+
       map._institutionsZoomListener = renderInstitutions;
       renderInstitutions();
       map.on('zoomend', renderInstitutions);
@@ -311,10 +311,10 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
   useEffect(() => {
     if (!mapReady || !mapInstanceRef.current) return;
     const map = mapInstanceRef.current;
-    
+
     Object.entries(checkpointMarkersRef.current).forEach(([circuitId, markers]) => {
-      const isActiveFilter = !activeCircuitFilter || activeCircuitFilter === 'all' || activeCircuitFilter === circuitId;
-      const shouldShow = showCheckpoints && isActiveFilter;
+      // const isActiveFilter = !activeCircuitFilter || activeCircuitFilter === 'all' || activeCircuitFilter === circuitId;
+      const shouldShow = showCheckpoints /*&&  isActiveFilter*/;
 
       markers.forEach(m => {
         if (shouldShow) {
