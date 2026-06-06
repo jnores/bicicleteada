@@ -50,11 +50,11 @@ function FirebaseConfigModal({ onSave, onDemo }) {
 
 // === PARTICIPANT ITEM ===
 function ParticipantItem({ participant, index, now }) {
-  const color = PARTICIPANT_COLORS[index % PARTICIPANT_COLORS.length];
   const initials = (participant.name || participant.id).substring(0, 2).toUpperCase();
   const age = participant.timestamp ? Math.round((now - participant.timestamp) / 1000) : null;
   const isStale = age !== null && age > 15;
   const circuit = CIRCUITS[participant.circuitId];
+  const color = circuit ? circuit.color : PARTICIPANT_COLORS[index % PARTICIPANT_COLORS.length];
 
   return (
     <div className="participant-item">
