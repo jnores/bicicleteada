@@ -37,13 +37,14 @@ const MapComponent = dynamic(() => import('./MapComponent'), {
 });
 
 // Pasa todas las props al componente real
-export default function MapWrapper({ circuits, participants, activeCircuitFilter, showInstitutions }) {
+export default function MapWrapper({ circuits, participants, activeCircuitFilter, showInstitutions, showCheckpoints }) {
   return (
     <MapComponent
       circuits={circuits}
       participants={participants}
       activeCircuitFilter={activeCircuitFilter}
       showInstitutions={showInstitutions}
+      showCheckpoints={showCheckpoints}
     />
   );
 }

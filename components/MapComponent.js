@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PARTICIPANT_COLORS, START_POINT, INSTITUCIONES } from '@/lib/circuits';
 
-export default function MapComponent({ circuits, participants, activeCircuitFilter, showInstitutions = true }) {
+export default function MapComponent({ circuits, participants, activeCircuitFilter, showInstitutions = true, showCheckpoints = true }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const routeLayersRef = useRef({});        // { circuitId: [layer, glowLayer] }
@@ -12,6 +12,11 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
   const startMarkerRef = useRef(null);
   const institucionesMarkersRef = useRef([]);
   const [mapReady, setMapReady] = useState(false);
+  const showCheckpointsRef = useRef(showCheckpoints);
+
+  useEffect(() => {
+    showCheckpointsRef.current = showCheckpoints;
+  }, [showCheckpoints]);
 
   // Inicializar mapa (una sola vez)
   useEffect(() => {
@@ -149,7 +154,7 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
             iconSize: [16, 26],
             iconAnchor: [8, 26],
           });
-          const m = L.marker(cp.coords, { icon: cpIcon }).addTo(map)
+          const m = L.marker(cp.coords, { icon: cpIcon })
             .bindTooltip(`
               <div style="color: ${circuit.color}; font-weight: 800; font-family: Inter, sans-serif; font-size: 11px;">
                 📍 ${cp.name}
@@ -159,6 +164,10 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
               offset: [0, -26],
               className: 'checkpoint-tooltip-container'
             });
+            
+          if (showCheckpointsRef.current) {
+            m.addTo(map);
+          }
           markers.push(m);
         });
 
@@ -297,6 +306,22 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
       map.on('zoomend', renderInstitutions);
     });
   }, [mapReady, showInstitutions]);
+
+  // Mostrar u ocultar checkpoints sin re-renderizar todo
+  useEffect(() => {
+    if (!mapReady || !mapInstanceRef.current) return;
+    const map = mapInstanceRef.current;
+    
+    Object.values(checkpointMarkersRef.current).forEach(markers => {
+      markers.forEach(m => {
+        if (showCheckpoints) {
+          if (!map.hasLayer(m)) m.addTo(map);
+        } else {
+          if (map.hasLayer(m)) m.remove();
+        }
+      });
+    });
+  }, [showCheckpoints, mapReady]);
 
   // Efecto visual cuando cambia el filtro de circuito activo
   useEffect(() => {

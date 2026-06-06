@@ -232,6 +232,7 @@ export default function HomePage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
   const [showInstitutions, setShowInstitutions] = useState(true);
+  const [showCheckpoints, setShowCheckpoints] = useState(true);
   const [now, setNow] = useState(Date.now());
 
   // Tick para timestamps
@@ -379,15 +380,26 @@ export default function HomePage() {
 
             {/* Opciones de visualización */}
             <div className="section-label" style={{ marginTop: '16px' }}>Opciones del mapa</div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '16px', fontSize: '14px', fontWeight: 600, color: '#444' }}>
-              <input 
-                type="checkbox" 
-                checked={showInstitutions} 
-                onChange={(e) => setShowInstitutions(e.target.checked)} 
-                style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#1971c2' }}
-              />
-              Mostrar Instituciones
-            </label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#444' }}>
+                <input 
+                  type="checkbox" 
+                  checked={showInstitutions} 
+                  onChange={(e) => setShowInstitutions(e.target.checked)} 
+                  style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#1971c2' }}
+                />
+                Mostrar Instituciones
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#444' }}>
+                <input 
+                  type="checkbox" 
+                  checked={showCheckpoints} 
+                  onChange={(e) => setShowCheckpoints(e.target.checked)} 
+                  style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#1971c2' }}
+                />
+                Mostrar Checkpoints
+              </label>
+            </div>
 
             {/* Filtro de participantes */}
             <div className="section-label">Ver participantes de</div>
@@ -510,6 +522,7 @@ export default function HomePage() {
             participants={displayParticipants}
             activeCircuitFilter={activeFilter}
             showInstitutions={showInstitutions}
+            showCheckpoints={showCheckpoints}
           />
         </main>
       </div>
