@@ -121,22 +121,44 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
         circuit.checkpoints.forEach((cp) => {
           const cpIcon = L.divIcon({
             className: '',
-            html: `<div style="
-              background: white;
-              border: 2.5px solid ${circuit.color};
-              border-radius: 6px;
-              padding: 2px 7px;
-              color: ${circuit.color};
-              font-size: 10px;
-              font-weight: 800;
-              white-space: nowrap;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-              font-family: Inter, sans-serif;
-            ">📍 ${cp.name}</div>`,
-            iconSize: [null, null],
-            iconAnchor: [0, 10],
+            html: `
+              <div style="position: relative; width: 16px; height: 26px;">
+                <div style="
+                  position: absolute;
+                  top: 14px;
+                  left: 6.5px;
+                  width: 3px;
+                  height: 12px;
+                  background: #444;
+                  border-radius: 0 0 2px 2px;
+                  box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                "></div>
+                <div style="
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 16px;
+                  height: 16px;
+                  background: ${circuit.color};
+                  border-radius: 50%;
+                  border: 2.5px solid white;
+                  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.2);
+                "></div>
+              </div>
+            `,
+            iconSize: [16, 26],
+            iconAnchor: [8, 26],
           });
-          const m = L.marker(cp.coords, { icon: cpIcon }).addTo(map);
+          const m = L.marker(cp.coords, { icon: cpIcon }).addTo(map)
+            .bindTooltip(`
+              <div style="color: ${circuit.color}; font-weight: 800; font-family: Inter, sans-serif; font-size: 11px;">
+                📍 ${cp.name}
+              </div>
+            `, {
+              direction: 'top',
+              offset: [0, -26],
+              className: 'checkpoint-tooltip-container'
+            });
           markers.push(m);
         });
 
@@ -422,6 +444,14 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
           padding: 4px 10px;
         }
         .circuit-tooltip::before { display: none; }
+        .checkpoint-tooltip-container {
+          background: white;
+          border: 1px solid rgba(0,0,0,0.1);
+          border-radius: 6px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          padding: 4px 8px;
+        }
+        .checkpoint-tooltip-container::before { display: none; }
       `}</style>
       <div
         ref={mapRef}
