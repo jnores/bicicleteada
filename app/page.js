@@ -231,6 +231,7 @@ export default function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
+  const [showInstitutions, setShowInstitutions] = useState(true);
   const [now, setNow] = useState(Date.now());
 
   // Tick para timestamps
@@ -376,6 +377,18 @@ export default function HomePage() {
               </div>
             )}
 
+            {/* Opciones de visualización */}
+            <div className="section-label" style={{ marginTop: '16px' }}>Opciones del mapa</div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '16px', fontSize: '14px', fontWeight: 600, color: '#444' }}>
+              <input 
+                type="checkbox" 
+                checked={showInstitutions} 
+                onChange={(e) => setShowInstitutions(e.target.checked)} 
+                style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#1971c2' }}
+              />
+              Mostrar Instituciones
+            </label>
+
             {/* Filtro de participantes */}
             <div className="section-label">Ver participantes de</div>
             <div className="circuit-tabs">
@@ -496,6 +509,7 @@ export default function HomePage() {
             circuits={CIRCUIT_LIST}
             participants={displayParticipants}
             activeCircuitFilter={activeFilter}
+            showInstitutions={showInstitutions}
           />
         </main>
       </div>

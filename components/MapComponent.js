@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PARTICIPANT_COLORS, START_POINT, INSTITUCIONES } from '@/lib/circuits';
 
-export default function MapComponent({ circuits, participants, activeCircuitFilter }) {
+export default function MapComponent({ circuits, participants, activeCircuitFilter, showInstitutions = true }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const routeLayersRef = useRef({});        // { circuitId: [layer, glowLayer] }
@@ -203,32 +203,44 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
         .addTo(map)
         .bindPopup(`<b>🏁 El Campito</b><br>Baroni 891, Los Polvorines<br><small>Inicio y llegada de todos los circuitos</small>`);
 
-      // Función para agrupar y renderizar instituciones
+      // Fit a todos los circuitos
+      const allCoords = circuits.flatMap(c => c.route);
+      if (allCoords.length > 0) {
+        const bounds = L.latLngBounds(allCoords);
+        map.flyToBounds(bounds, { padding: [40, 40], duration: 1.2 });
+      }
+    });
+  }, [circuits, mapReady]);
+
+  // Renderizar instituciones independientemente de los circuitos
+  useEffect(() => {
+    if (!mapReady || !mapInstanceRef.current) return;
+
+    import('leaflet').then((L) => {
+      const map = mapInstanceRef.current;
+
       const renderInstitutions = () => {
         // Limpiar marcadores existentes
         institucionesMarkersRef.current.forEach(m => m.remove());
         institucionesMarkersRef.current = [];
 
-        if (!INSTITUCIONES || INSTITUCIONES.length === 0) return;
+        if (!showInstitutions || !INSTITUCIONES || INSTITUCIONES.length === 0) return;
 
         const groupedInstitutions = [];
-        const overlapThreshold = 24; // Píxeles de distancia para considerar que se superponen
+        const overlapThreshold = 24; // Píxeles de distancia
 
         INSTITUCIONES.forEach(inst => {
           if (!inst.coords || inst.coords.length !== 2) return;
           const latlng = L.latLng(inst.coords);
           const pixelPos = map.latLngToLayerPoint(latlng);
 
-          // Buscar un grupo cercano
           let foundGroup = null;
           for (const group of groupedInstitutions) {
             const groupLatLng = L.latLng(group.coords);
             const physicalDistance = map.distance(latlng, groupLatLng);
-            
             const groupPixelPos = map.latLngToLayerPoint(groupLatLng);
             const pixelDistance = pixelPos.distanceTo(groupPixelPos);
 
-            // Agrupar si están a <= 20 metros físicos O si se superponen visualmente
             if (physicalDistance <= 20 || pixelDistance <= overlapThreshold) {
               foundGroup = group;
               break;
@@ -249,7 +261,7 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
         groupedInstitutions.forEach(group => {
           const isGroup = group.items.length > 1;
           const marker = L.circleMarker(group.coords, {
-            radius: isGroup ? 12 : 9, // Un poco más grande si agrupa varias
+            radius: isGroup ? 12 : 9,
             fillColor: group.color || '#62af44',
             color: '#ffffff',
             weight: 2,
@@ -276,26 +288,15 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
         });
       };
 
-      // Remover el listener anterior si existía para evitar duplicados
       if (map._institutionsZoomListener) {
         map.off('zoomend', map._institutionsZoomListener);
       }
       
-      // Guardar referencia al listener actual
       map._institutionsZoomListener = renderInstitutions;
-      
-      // Renderizar inicialmente y volver a renderizar cuando cambia el zoom
       renderInstitutions();
       map.on('zoomend', renderInstitutions);
-
-      // Fit a todos los circuitos
-      const allCoords = circuits.flatMap(c => c.route);
-      if (allCoords.length > 0) {
-        const bounds = L.latLngBounds(allCoords);
-        map.flyToBounds(bounds, { padding: [40, 40], duration: 1.2 });
-      }
     });
-  }, [circuits, mapReady]);
+  }, [mapReady, showInstitutions]);
 
   // Efecto visual cuando cambia el filtro de circuito activo
   useEffect(() => {
