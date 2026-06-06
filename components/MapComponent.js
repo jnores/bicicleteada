@@ -312,16 +312,19 @@ export default function MapComponent({ circuits, participants, activeCircuitFilt
     if (!mapReady || !mapInstanceRef.current) return;
     const map = mapInstanceRef.current;
     
-    Object.values(checkpointMarkersRef.current).forEach(markers => {
+    Object.entries(checkpointMarkersRef.current).forEach(([circuitId, markers]) => {
+      const isActiveFilter = !activeCircuitFilter || activeCircuitFilter === 'all' || activeCircuitFilter === circuitId;
+      const shouldShow = showCheckpoints && isActiveFilter;
+
       markers.forEach(m => {
-        if (showCheckpoints) {
+        if (shouldShow) {
           if (!map.hasLayer(m)) m.addTo(map);
         } else {
           if (map.hasLayer(m)) m.remove();
         }
       });
     });
-  }, [showCheckpoints, mapReady]);
+  }, [showCheckpoints, activeCircuitFilter, mapReady]);
 
   // Efecto visual cuando cambia el filtro de circuito activo
   useEffect(() => {
